@@ -30,3 +30,6 @@ A library of the app allows easily:
 
 Tested on Linux and Windows. On Mac, the GUI is not fine.
 
+## Screen example
+
+![screen example](screen-example.png "Screen example")
