@@ -1,0 +1,13 @@
+# .gitignore
+
+.gitignore
+
+# Development environment folders
+bin
+.git
+.settings
+*.env
+*.properties
+
+.classpath
+.project

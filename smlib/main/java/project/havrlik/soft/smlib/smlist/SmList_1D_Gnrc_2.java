@@ -1,0 +1,176 @@
+package main.java.project.havrlik.soft.smlib.smlist;
+
+import java.lang.reflect.Array;
+
+/*
+ * Uses 'Array.newInstance()' istead 'new Object[][]' to initialize generic array.
+ */
+
+public class SmList_1D_Gnrc_2<E> extends SmList_SteadyColumns {
+	
+	protected Class<E> clazz;
+	@SuppressWarnings("rawtypes")
+	protected SmList_1D_Gnrc_Partial_2[] listAggregated;
+	
+	
+	public SmList_1D_Gnrc_2(Class<E> clazz) {
+		super();
+		this.clazz = clazz;
+		
+		clear();
+	}
+	
+	
+	public SmList_1D_Gnrc_2(Class<E> clazz, SmList_Size useArraySizesModel) {
+		super(useArraySizesModel);
+		this.clazz = clazz;
+		
+		clear();
+	}
+	
+	
+	public SmList_1D_Gnrc_2(Class<E> clazz, int higherMediumSizeOfList) {
+		super(higherMediumSizeOfList);
+		this.clazz = clazz;
+		
+		clear();
+	}
+	
+	
+	//@Override
+	public void addValue(E value) {
+		putValue(maxWritedRowNumber + 1, value);
+	}
+	
+	
+	//@Override
+	public void addArray(E[] array) {
+		for (int i1 = 0; i1 < array.length; i1++) {
+			putValue(maxWritedRowNumber + 1, array[i1]);
+		}
+	}
+	
+	
+	//@Override
+	@SuppressWarnings("unchecked")
+	public void putValue(int rowNumber, E value) {
+		determineArrayNumberAndRowNumberInArray(rowNumber);
+		
+		listAggregated[arrayNumber].putValue(rowNumberInArray, value);
+		
+		if (rowNumber > maxWritedRowNumber) {
+			maxWritedRowNumber = rowNumber;
+		}
+	}
+	
+	
+	//@Override
+	public void putArray(E[] array) {
+		clear();
+		for (int i1 = 0; i1 < array.length; i1++) {
+			putValue(i1, array[i1]);
+		}
+	}
+	
+	
+	//@Override
+	@SuppressWarnings("unchecked")
+	public E getValue(int rowNumber) {
+		if (determineArrayNumberAndRowNumberInArray_notAddingArrays(rowNumber)) {
+			return (E) listAggregated[arrayNumber].getValue(rowNumberInArray);
+		}
+		
+		return null;
+	}
+	
+	
+	//@Override
+	@SuppressWarnings("unchecked")
+	public E[] getArray() {
+		E[] array = (E[]) Array.newInstance(clazz, size());
+		for (int i1 = 0; i1 < array.length; i1++) {
+			array[i1] = getValue(i1);
+		}
+		
+		return array;
+	}
+	
+	
+	@Override
+	public void clearRow(int rowNumber) {  // Same like method 'clearValue()'.
+		clearValue(rowNumber);
+	}
+	
+	
+	//@Override
+	@SuppressWarnings("unchecked")
+	public void clearValue(int rowNumber) {
+		if (determineArrayNumberAndRowNumberInArray_notAddingArrays(rowNumber)) {
+			listAggregated[arrayNumber].putValue(rowNumberInArray, null);
+		}
+	}
+	
+	
+	@Override
+	public void clear() {
+		if (listAggregated != null && listAggregated.length != 0) {
+			for (int i1 = 0; i1 < listAggregated.length; i1++) {
+				listAggregated[i1] = null;
+			}
+		}
+		listAggregated = null;
+		
+		addArrayToList();
+	}
+	
+	
+	@Override
+	@SuppressWarnings("rawtypes")
+	protected void addArrayToList() {
+		if (listAggregated == null || listAggregated.length == 0) {
+			// Empty list - create first array.
+			createNew_list_arraySizes();
+			
+			// New list.
+			listAggregated = null;
+			listAggregated = new SmList_1D_Gnrc_Partial_2[list_arraySizes_length];
+		}
+		else if (listAggregated_initializedQuantity == list_arraySizes_length) {
+			// Non empty list, so increase.
+			increase_list_arraySizes();
+			
+			// Copy list.
+			SmList_1D_Gnrc_Partial_2[] list_new = new SmList_1D_Gnrc_Partial_2[list_arraySizes_length];
+			for (int i1 = 0; i1 < listAggregated.length; i1++) {
+				list_new[i1] = listAggregated[i1];
+			}
+			listAggregated = list_new;
+		}
+		
+		addAnotherOneArrayToList();
+	}
+	
+	
+	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected void addAnotherOneArrayToList() {
+		int newArrayRowQuantity = list_arraySizes[listAggregated_initializedQuantity][2];
+		listAggregated[listAggregated_initializedQuantity] = new SmList_1D_Gnrc_Partial_2(clazz, newArrayRowQuantity);
+		listAggregated_initializedQuantity++;
+		size_real += newArrayRowQuantity;
+	}
+	
+	
+	// Additional methods.
+	//@Override
+	public boolean is_listContainsValue(String value) {
+		for (int i1 = 0; i1 < size(); i1++) {
+			E valueFromList = getValue(i1);
+			if (valueFromList.equals(value)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+}
